@@ -12,11 +12,8 @@
   --color-text-muted: #6B7280;
   --color-border: #E5E7EB;
   --color-error: #EF4444;
-}
-
-@theme {
-    --font-inter: 'Inter', sans-serif;
-    --font-poppins: 'Poppins', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --font-poppins: 'Poppins', sans-serif;
 }
 
 @layer base {
