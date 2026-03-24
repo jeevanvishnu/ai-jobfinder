@@ -107,6 +107,25 @@ export const fetchCurrentUser = createAsyncThunk<
     }
 );
 
+// Refresh Access Token
+export const refreshAccessToken = createAsyncThunk<
+    AuthResponse,
+    void,
+    { rejectValue: string }
+>(
+    "auth/refreshAccessToken",
+    async (_, thunkApi) => {
+        try {
+            const res = await axios.get<AuthResponse>(`${api}/refresh-token`, {
+                withCredentials: true,
+            });
+            return res.data;
+        } catch (error) {
+            return thunkApi.rejectWithValue(getErrorMessage(error));
+        }
+    }
+);
+
 export const startGoogleAuth = () => {
     window.location.assign(`${api}/google`);
 };
@@ -169,6 +188,20 @@ const authSlice = createSlice({
             .addCase(fetchCurrentUser.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload ?? "Unable to sign in with Google. Please try again.";
+            })
+            .addCase(refreshAccessToken.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(refreshAccessToken.fulfilled, (state, action) => {
+                state.loading = false;
+                state.error = null;
+                state.user = action.payload.user ?? action.payload;
+                state.token = action.payload.accessToken ?? action.payload.token ?? null;
+            })
+            .addCase(refreshAccessToken.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload ?? "Unable to refresh access token. Please try again.";
             });
     },
 });

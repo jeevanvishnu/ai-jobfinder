@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent, KeyboardEvent } from 'react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { useDispatch, useSelector } from 'react-redux';
-import { uploadResume } from '../features/DashboardSlice';
+import { fetchLatestResume, uploadResume } from '../features/DashboardSlice';
 
 import type { AppDispatch, RootState } from '../app/Store';
 import {
@@ -103,7 +103,7 @@ const UploadResume = () => {
   const [showSkills, setShowSkills] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
-  const { resume, loading, error } = useSelector((state: RootState) => state.dashboard);
+  const { resume, loading, fetchingResume, error } = useSelector((state: RootState) => state.dashboard);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const skillInputRef = useRef<HTMLInputElement | null>(null);
@@ -120,6 +120,14 @@ const UploadResume = () => {
       toast.error(error);
     }
   }, [error]);
+
+  useEffect(() => {
+    dispatch(fetchLatestResume());
+  }, [dispatch]);
+
+  useEffect(() => {
+    setShowSkills(Boolean(resume));
+  }, [resume]);
 
   const extractedSkills = readSkillsFromResume(resume);
   const baseSkills = uniqueSkills(extractedSkills);
@@ -290,6 +298,10 @@ const UploadResume = () => {
           Our AI will scan your profile to find the perfect job matches for your career path.
         </p>
 
+        {fetchingResume && !resume && (
+          <p className="text-[14px] text-gray-500 mb-4 mx-1">Loading your saved resume skills...</p>
+        )}
+
         <div
           onDragEnter={handleDragEnter}
           onDragOver={handleDragOver}
@@ -444,7 +456,7 @@ const UploadResume = () => {
 
         <div className="mt-auto pt-16">
           <div className="flex justify-between items-center text-[12px] font-semibold text-gray-400">
-            <p>(c) 2024 AutoJob AI. Secure and Encrypted.</p>
+            <p>(c) {new Date().getFullYear()} AutoJob AI. Secure and Encrypted.</p>
             <div className="flex gap-6">
               <a href="#" className="hover:text-gray-600 transition-colors">
                 Privacy Policy

@@ -187,3 +187,55 @@ export const me = async (req: Request, res: Response) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
+// Refresh Token 
+
+export const refreshAccessToken = async (req: Request, res: Response) => {
+    try {
+        const { refreshToken } = req.cookies;
+        if (!refreshToken) {
+            return res.status(401).json({ message: "Refresh token is required" });
+        }
+
+        const tokenHash = hashToken(refreshToken);
+
+        const user = await User.findOne({ "refreshToken.tokenHash": tokenHash });
+
+        if (!user) {
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        const token = user.refreshToken.find((token) => token.tokenHash === tokenHash);
+        if (!token) {
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        if (token.expiresAt < new Date()) {
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        //   generate new tokens
+        const newAccessToken = generateAccessToken(user);
+        const newRefreshToken = generateRefreshToken();
+        const newTokenHash = hashToken(newRefreshToken);
+        user.refreshToken.push({ tokenHash: newTokenHash, expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) });
+
+        res.cookie("refreshToken", newRefreshToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+        res.cookie("accessToken", newAccessToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict",
+            maxAge: 15 * 60 * 1000
+        });
+        await user.save();
+        res.status(200).json({ message: "Refresh token generated successfully" });
+    } catch (error: any) {
+        console.log(error.message, "Error in logout controller")
+        res.status(500).json({ message: error.message });
+    }
+};
