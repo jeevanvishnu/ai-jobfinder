@@ -3,8 +3,8 @@ import crypto from "crypto"
 import "dotenv/config"
 
 export const generateAccessToken = (user:any)=>{
-    const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET || process.env.ACCESSTOKNE_SECRECT;
-    const accessTokenExpiry = process.env.ACCESS_TOKEN_EXPIRE || process.env.ACCESSTOKNE_EXPERIE || "15m";
+    const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET 
+    const accessTokenExpiry = process.env.ACCESS_TOKEN_EXPIRE 
 
     if (!accessTokenSecret) {
         throw new Error("Missing ACCESS_TOKEN_SECRET environment variable.");

@@ -185,9 +185,9 @@ const authSlice = createSlice({
                 state.user = action.payload.user ?? action.payload;
                 state.token = action.payload.accessToken ?? action.payload.token ?? null;
             })
-            .addCase(fetchCurrentUser.rejected, (state, action) => {
+            .addCase(fetchCurrentUser.rejected, (state) => {
                 state.loading = false;
-                state.error = action.payload ?? "Unable to sign in with Google. Please try again.";
+                state.error = null;
             })
             .addCase(refreshAccessToken.pending, (state) => {
                 state.loading = true;
@@ -199,9 +199,9 @@ const authSlice = createSlice({
                 state.user = action.payload.user ?? action.payload;
                 state.token = action.payload.accessToken ?? action.payload.token ?? null;
             })
-            .addCase(refreshAccessToken.rejected, (state, action) => {
+            .addCase(refreshAccessToken.rejected, (state) => {
                 state.loading = false;
-                state.error = action.payload ?? "Unable to refresh access token. Please try again.";
+                state.error = null;
             });
     },
 });
